@@ -41,6 +41,20 @@ async def data():
 
     return Response(content=json.dumps(data_list, ensure_ascii=False), headers=headers)
 
+@app.get("/result")
+async def result():
+    get_data()
+    traffy_road_prep = preprocess_data()
+    kmeans = perform_clustering(traffy_road_prep)
+    data_list = [row.asDict() for row in traffy_road_prep.collect()]
+    for d, label in zip(data_list, kmeans.labels_.tolist()):
+        d['Model Label'] = label
+    headers = {
+        "content-type": "application/json; charset=utf-8",
+    }
+
+    return Response(content=json.dumps(data_list, ensure_ascii=False), headers=headers)
+
 @app.get('/')
 async def test():
     return "Connected"
